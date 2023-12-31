@@ -1,25 +1,24 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model } = require("mongoose");
 
 const userSchema = new Schema({
   artist: {
     type: String,
-    trim: true
+    trim: true,
   },
   title: {
     type: String,
-    trim: true
+    trim: true,
   },
   platform: {
     type: String,
-    trim: true
+    trim: true,
   },
   URL: {
     type: String,
     required: true,
-  }
+  },
 });
 
-
-const Track = model('track', userSchema);
+const Track = model("track", userSchema);
 
 module.exports = Track;
