@@ -48,9 +48,9 @@ const typeDefs = `
     type Query {
         me: User
         user(username: String!): User
-        partyList: [Party]
-        trackQue(_id: ID!): [Track]
-        history(_id: ID!): [Track]
+        publicPartyList: [Party]
+        trackQue(partyID: ID!): [Track]
+        history(partyID: ID!): [Track]
     }
 
     type Mutation {
