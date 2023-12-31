@@ -15,6 +15,10 @@ const server = new ApolloServer({
   resolvers,
 });
 
+const { DevEnvironment, DevLoggingTools } = require("./utils/dev");
+const prod = new DevEnvironment();
+const dev = new DevLoggingTools();
+
 // Create a new instance of an Apollo server with the GraphQL schema
 const startApolloServer = async () => {
   await server.start();
@@ -28,7 +32,7 @@ const startApolloServer = async () => {
     })
   );
 
-  if (process.env.NODE_ENV === "production") {
+  if (prod.isProduction) {
     app.use(express.static(path.join(__dirname, "../client/dist")));
 
     app.get("*", (req, res) => {

@@ -1,11 +1,15 @@
 const { User, Track, Party } = require("../models");
 const { signToken, AuthenticationError } = require("../utils/auth");
 
+const { DevLoggingTools } = require("../utils/dev");
+const dev = new DevLoggingTools();
+
+//TODO: aDD resilient error checking and handling
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        return await User.findOne({ _id: context.user._id }).populate();
+        return await User.findOne({ _id: context.user._id }).populate("");
       }
       throw AuthenticationError;
     },

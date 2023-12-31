@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
+const { DeployedEnvironment } = require("../utils/dev");
+const deploy = new DeployedEnvironment();
 
-mongoose.connect(
-  process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/digital-dj"
-);
+mongoose.connect(deploy.mongodb);
 
 module.exports = mongoose.connection;

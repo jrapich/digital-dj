@@ -1,6 +1,10 @@
 const { GraphQLError } = require("graphql");
 const jwt = require("jsonwebtoken");
 
+const { DevEnvironment, DevLoggingTools } = require("./dev");
+const prod = new DevEnvironment();
+const dev = new DevLoggingTools();
+
 const secret = process.env.JWT_SECRET;
 const expiration = "48h";
 
@@ -18,14 +22,19 @@ module.exports = {
     }
 
     if (!token) {
+      dev.warn('JWT token not found or is invalid! req token info follows:');
+      dev.group('token data in this request:', [req.body.token, req.query.token, req.headers.authorization]);
       return req;
     }
 
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
       req.user = data;
-    } catch {
+    } catch(e) {
       console.log("Invalid token");
+      dev.log("error and invalid token data as follows:");
+      dev.error(e);
+      dev.log(token);
     }
 
     return req;
