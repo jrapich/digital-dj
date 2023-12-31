@@ -3,13 +3,20 @@
 class DevEnvironment {
   constructor() {
     this.isLogging = process.env.DEV_DEBUGGING === "true" ? true : false;
-    this.isProduction = process.env.NODE_ENV === "true" ? true : false;
+    this.isProduction = process.env.NODE_ENV === "production" ? true : false;
+  }
+}
+
+class DeployedEnvironment extends DevEnvironment {
+  constructor(mongodbName, sqlName) {
+    super();
+    this.mongodb = process.env.MONGODB_URI || `mongodb://127.0.0.1:27017/${mongodbName}`;
   }
 }
 
 class DevLoggingTools extends DevEnvironment {
-  constructor(properties) {
-    super(properties);
+  constructor() {
+    super();
   }
   log(content) {
     if (this.isLogging) {
@@ -76,4 +83,4 @@ class DevLoggingTools extends DevEnvironment {
   }
 }
 
-module.exports = { DevEnvironment, DevLoggingTools };
+module.exports = { DevEnvironment, DeployedEnvironment, DevLoggingTools };
