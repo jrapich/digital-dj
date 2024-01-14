@@ -8,9 +8,9 @@ import { setContext } from "@apollo/client/link/context";
 import { Outlet } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline, Container } from "@mui/material";
-//import theme from './theme';
+import theme from './theme';
 
-//import { Header } from './components';
+import { Header, Footer } from './components';
 
 // Construct our main GraphQL API endpoint
 const httpLink = createHttpLink({
@@ -41,10 +41,11 @@ function App(error) {
     <ApolloProvider client={client}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {/* <Header /> */}
+        <Header />
         <Container component="main" sx={{ mt: 2 }}>
           {error?.error || <Outlet />}
         </Container>
+        <Footer />
       </ThemeProvider>
     </ApolloProvider>
   );
