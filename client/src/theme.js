@@ -41,6 +41,7 @@ theme = createTheme(theme, {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
+          backgroundColor: theme.palette.background.main,
           color: theme.palette.text.main,
           //   if we want a background image later
           //   backgroundImage: `url('')`,
@@ -50,17 +51,57 @@ theme = createTheme(theme, {
         },
       },
     },
+    MuiToolbar: {
+      styleOverrides:{
+        root:{
+          backgroundColor: theme.palette.secondary.main,
+        }
+      }
+    },
+    MuiDivider:{
+      styleOverrides:{
+        root:{
+          borderTop: `solid ${theme.palette.primary.dark}`,
+          borderBottom: `solid ${theme.palette.primary.dark}`,
+        }
+      }
+    },
+    MuiCard:{
+      styleOverrides:{
+        root:{
+          borderColor: theme.palette.secondary.main,
+        }
+      }
+    },
+    MuiCardContent: {
+      styleOverrides:{
+        root:{
+          color: theme.palette.text.main,
+          backgroundColor: theme.palette.primary.dark,
+          borderColor: theme.palette.secondary.main,
+        }
+      }
+    },
+    MuiCardActions: {
+      styleOverrides:{
+        root:{
+          color: theme.palette.text.main,
+          backgroundColor: theme.palette.secondary.main,
+          borderColor: theme.palette.secondary.main,
+        }
+      }
+    },
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: theme.palette.primary.contrastText,
+          color: theme.palette.text.main,
         },
       },
     },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          color: theme.palette.primary.contrastText,
+          color: theme.palette.text.main,
           marginBottom: "5px",
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: theme.palette.secondary,
@@ -77,10 +118,10 @@ theme = createTheme(theme, {
             },
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.primary.contrastText,
+            borderColor: theme.palette.text.main,
           },
           "& .MuiOutlinedInput-input": {
-            color: theme.palette.primary.contrastText,
+            color: theme.palette.text.main,
           },
         },
       },
@@ -88,11 +129,11 @@ theme = createTheme(theme, {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderColor: theme.palette.primary.contrastText,
-          color: theme.palette.primary.contrastText,
+          borderColor: theme.palette.tertiary.main,
+          color: theme.palette.text.main,
           "&:hover": {
-            color: theme.palette.primary.contrastText,
-            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.warning.main,
+            backgroundColor: theme.palette.secondary.dark,
           },
         },
       },
