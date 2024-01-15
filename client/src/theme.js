@@ -52,44 +52,44 @@ theme = createTheme(theme, {
       },
     },
     MuiToolbar: {
-      styleOverrides:{
-        root:{
+      styleOverrides: {
+        root: {
           backgroundColor: theme.palette.secondary.main,
-        }
-      }
+        },
+      },
     },
-    MuiDivider:{
-      styleOverrides:{
-        root:{
+    MuiDivider: {
+      styleOverrides: {
+        root: {
           borderTop: `solid ${theme.palette.primary.dark}`,
           borderBottom: `solid ${theme.palette.primary.dark}`,
-        }
-      }
+        },
+      },
     },
-    MuiCard:{
-      styleOverrides:{
-        root:{
+    MuiCard: {
+      styleOverrides: {
+        root: {
           borderColor: theme.palette.secondary.main,
-        }
-      }
+        },
+      },
     },
     MuiCardContent: {
-      styleOverrides:{
-        root:{
+      styleOverrides: {
+        root: {
           color: theme.palette.text.main,
           backgroundColor: theme.palette.primary.dark,
           borderColor: theme.palette.secondary.main,
-        }
-      }
+        },
+      },
     },
     MuiCardActions: {
-      styleOverrides:{
-        root:{
+      styleOverrides: {
+        root: {
           color: theme.palette.text.main,
           backgroundColor: theme.palette.secondary.main,
           borderColor: theme.palette.secondary.main,
-        }
-      }
+        },
+      },
     },
     MuiInputLabel: {
       styleOverrides: {
