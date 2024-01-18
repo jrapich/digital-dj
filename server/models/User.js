@@ -19,10 +19,10 @@ const userSchema = new Schema({
     required: true,
     minlength: 8,
   },
-  partyList: [
+  sessionList: [
     {
       type: Schema.Types.ObjectId,
-      ref: "party",
+      ref: "session",
     },
   ],
 });
