@@ -4,7 +4,7 @@ const typeDefs = `
         username: String!
         email: String!
         password: String!
-        partyList: [Party]
+        sessionList: [Session]
     }
 
     type Auth {
@@ -27,39 +27,39 @@ const typeDefs = `
         URL: String!
     }
 
-    type Party {
+    type Session {
         _id: ID
         owner: String!
         ownerID: ID!
         isPublic: Boolean!
-        partyName: String!
+        sessionName: String!
         passcode: String
         que: [Track]
         history: [Track]
     }
 
-    input AddParty {
+    input AddSession {
         userID: ID!
         isPublic: Boolean!
-        partyName: String!
+        sessionName: String!
         passcode: String
     }
 
     type Query {
         me: User
         user(username: String!): User
-        publicPartyList: [Party]
-        trackQue(partyID: ID!): [Track]
-        history(partyID: ID!): [Track]
+        publicSessionList: [Session]
+        trackQue(SessionID: ID!): [Track]
+        history(SessionID: ID!): [Track]
     }
 
     type Mutation {
         addUser(username: String!, email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
-        addParty(newParty: AddParty!): Party
-        deleteParty(partyID: ID!): Party
-        addTrack(trackData: AddTrack!): Party
-        deleteTrack(trackID: ID!): Party
+        addSession(newSession: AddSession!): Session
+        deleteSession(SessionID: ID!): Session
+        addTrack(trackData: AddTrack!): Session
+        deleteTrack(trackID: ID!): Session
     }
 `;
 
