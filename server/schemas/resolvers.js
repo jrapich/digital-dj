@@ -1,4 +1,4 @@
-const { User, Track, Party } = require("../models");
+const { User, Track, Session } = require("../models");
 const { signToken, AuthenticationError } = require("../utils/auth");
 
 const { DevLoggingTools } = require("../utils/dev");
@@ -16,16 +16,16 @@ const resolvers = {
     user: async (parent, { username }) => {
       return await User.findOne({ username }).populate();
     },
-    publicPartyList: async () => {
-      return await Party.find({ isPublic: true }).populate().exec();
+    publicSessionList: async () => {
+      return await Session.find({ isPublic: true }).populate().exec();
     },
-    trackQue: async (parent, { partyID }) => {
-      const party = await Party.findById({ _id: partyID }).populate().exec();
-      return party.que;
+    trackQue: async (parent, { sessionID }) => {
+      const Session = await Session.findById({ _id: sessionID }).populate().exec();
+      return Session.que;
     },
-    history: async (parent, { partyID }) => {
-      const party = await Party.findById({ _id: partyID }).populate().exec();
-      return party.history;
+    history: async (parent, { sessionID }) => {
+      const Session = await Session.findById({ _id: sessionID }).populate().exec();
+      return Session.history;
     },
   },
 

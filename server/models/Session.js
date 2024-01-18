@@ -14,7 +14,7 @@ const userSchema = new Schema({
     type: Boolean,
     required: true,
   },
-  partyName: {
+  sessionName: {
     type: String,
     required: true,
   },
@@ -50,6 +50,6 @@ userSchema.methods.isCorrectPassword = async function (passcode) {
   return bcrypt.compare(passcode, this.passcode);
 };
 
-const Party = model("party", userSchema);
+const Session = model("session", userSchema);
 
-module.exports = Party;
+module.exports = Session;
