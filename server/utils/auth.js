@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 const { DevEnvironment, DevLoggingTools } = require("./dev");
 const prod = new DevEnvironment();
-const dev = new DevLoggingTools();
+const dev = new DevLoggingTools(false);
 
 const secret = process.env.JWT_SECRET;
 const expiration = "48h";

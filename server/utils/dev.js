@@ -17,14 +17,16 @@ class DeployedEnvironment extends DevEnvironment {
 }
 
 class DevLoggingTools extends DevEnvironment {
-  constructor() {
+  constructor(logSelf) {
     super();
     dotenv.error ? console.error(dotenv.error) : null;
-    this.selfLog();
+    this.selfLog(logSelf);
   }
-  selfLog() {
-    console.log('debug logging is enabled:', this.isLogging);
-    console.log('node env is production:', this.isProduction);
+  selfLog(logSelf) {
+    if (logSelf) {
+      console.log('debug logging is enabled:', this.isLogging);
+      console.log('node env is production:', this.isProduction);
+    }
   }
   log(content) {
     if (this.isLogging) {

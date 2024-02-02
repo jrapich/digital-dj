@@ -16,7 +16,7 @@ const server = new ApolloServer({
 });
 
 const { DevLoggingTools } = require("./utils/dev");
-const dev = new DevLoggingTools();
+const dev = new DevLoggingTools(true);
 
 // Create a new instance of an Apollo server with the GraphQL schema
 const startApolloServer = async () => {

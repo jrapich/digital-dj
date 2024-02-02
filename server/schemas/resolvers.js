@@ -2,7 +2,7 @@ const { User, Track, Session } = require("../models");
 const { signToken, AuthenticationError } = require("../utils/auth");
 
 const { DevLoggingTools } = require("../utils/dev");
-const dev = new DevLoggingTools();
+const dev = new DevLoggingTools(false);
 
 //TODO: aDD resilient error checking and handling
 const resolvers = {
