@@ -45,12 +45,12 @@ class DevLoggingTools extends DevEnvironment {
   }
   multiLog(force, ...content) {
     if (this.isLogging || force) {
-      console.log('multilog:', ...content);
+      console.log("multilog:", ...content);
     }
     return;
   }
   test() {
-    this.log('is this log happening?', true);
+    this.log("is this log happening?", true);
     return;
   }
   table(tableObject) {
