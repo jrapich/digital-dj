@@ -55,8 +55,7 @@ class DevLoggingTools extends DevEnvironment {
       console.group(groupedLogsName);
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
-        console.log(groupedLogsArray[i]);
-        this.break();
+        this.log(groupedLogsArray[i]);
       }
       console.groupEnd();
       this.break();
@@ -66,14 +65,13 @@ class DevLoggingTools extends DevEnvironment {
   groupError(groupedLogsName, groupedLogsArray) {
     if (this.isLogging) {
       this.break();
-      console.group(`${groupedLogsName} errors are as follows:`);
+      console.group(`${groupedLogsName} related errors are as follows:`);
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
-        console.log(groupedLogsArray[i]);
-        this.break();
+        this.error(groupedLogsArray[i]);
       }
       console.groupEnd();
-      console.log(`end of ${groupedLogsName} errors.`);
+      console.log(`end of ${groupedLogsName} related errors.`);
       this.break();
     }
     return;
@@ -84,8 +82,7 @@ class DevLoggingTools extends DevEnvironment {
       console.groupCollapsed(groupedLogsName);
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
-        console.log(groupedLogsArray[i]);
-        this.break();
+        this.log(groupedLogsArray[i]);
       }
       console.groupEnd();
       this.break();
@@ -95,14 +92,13 @@ class DevLoggingTools extends DevEnvironment {
   collapsedGroupError(groupedLogsName, groupedLogsArray) {
     if (this.isLogging) {
       this.break();
-      console.groupCollapsed(`${groupedLogsName} errors are as follows:`);
+      console.groupCollapsed(`${groupedLogsName} related errors are as follows:`);
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
-        console.log(groupedLogsArray[i]);
-        this.break();
+        this.error(groupedLogsArray[i]);
       }
       console.groupEnd();
-      console.log(`end of ${groupedLogsName} errors.`);
+      console.log(`end of ${groupedLogsName} related errors.`);
       this.break();
     }
     return;
