@@ -24,6 +24,7 @@ class DevLoggingTools extends DevEnvironment {
   }
   break() {
     console.log("");
+    return;
   }
   selfLog(logSelf) {
     if (logSelf) {
@@ -32,13 +33,24 @@ class DevLoggingTools extends DevEnvironment {
       console.log("node env is production:", this.isProduction);
       this.break();
     }
+    return;
   }
-  log(content) {
-    if (this.isLogging) {
+  log(content, force) {
+    if (this.isLogging || force) {
       this.break();
       console.log(content);
       this.break();
     }
+    return;
+  }
+  multiLog(force, ...content) {
+    if (this.isLogging || force) {
+      console.log('multilog:', ...content);
+    }
+    return;
+  }
+  test() {
+    this.log('is this log happening?', true);
     return;
   }
   table(tableObject) {
@@ -92,7 +104,9 @@ class DevLoggingTools extends DevEnvironment {
   collapsedGroupError(groupedLogsName, groupedLogsArray) {
     if (this.isLogging) {
       this.break();
-      console.groupCollapsed(`${groupedLogsName} related errors are as follows:`);
+      console.groupCollapsed(
+        `${groupedLogsName} related errors are as follows:`
+      );
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
         this.error(groupedLogsArray[i]);
