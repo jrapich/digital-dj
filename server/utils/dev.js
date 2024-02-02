@@ -1,5 +1,7 @@
 //tools to help me debug/log different things when needed
 
+const dotenv = require('dotenv').config();
+
 class DevEnvironment {
   constructor() {
     this.isLogging = process.env.DEV_DEBUGGING === "true" ? true : false;
@@ -17,6 +19,12 @@ class DeployedEnvironment extends DevEnvironment {
 class DevLoggingTools extends DevEnvironment {
   constructor() {
     super();
+    dotenv.error ? console.error(dotenv.error) : null;
+    this.selfLog();
+  }
+  selfLog() {
+    console.log('debug logging is enabled:', this.isLogging);
+    console.log('node env is production:', this.isProduction);
   }
   log(content) {
     if (this.isLogging) {
