@@ -4,11 +4,11 @@
   "description": "add you and your friends' favorite tunes to the music que for any event or party",
   "main": "server.js",
   "scripts": {
-    "start": "node server/server.js",
+    "start": "cd server/ && node server.js",
     "dev": "concurrently \"cd server && npm run watch\" \"cd client && npm run dev\"",
     "install": "cd server && npm i && cd ../client && npm i",
     "build": "cd client && npm run build",
-    "seed": "node server/seeders/seed.js",
+    "seed": "cd server && node seeds/seeds.js",
     "test": "jest",
     "update": "ncu && ncu -u && cd server && ncu && ncu -u && cd ../client && ncu && ncu -u"
   },

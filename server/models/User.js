@@ -19,17 +19,17 @@ const userSchema = new Schema({
     required: true,
     minlength: 8,
   },
-  partyList: [
+  sessionList: [
     {
       type: Schema.Types.ObjectId,
-      ref: "party",
+      ref: "session",
     },
   ],
 });
 
 userSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("password")) {
-    const saltRounds = 20;
+    const saltRounds = 15;
     this.password = await bcrypt.hash(this.password, saltRounds);
   }
 

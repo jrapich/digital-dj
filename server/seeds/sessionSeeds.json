@@ -1,0 +1,24 @@
+[
+  {
+    "owner": "user1",
+    "isPublic": true,
+    "sessionName": "User1's Session",
+    "que": [],
+    "history": []
+  },
+  {
+    "owner": "user2",
+    "isPublic": true,
+    "sessionName": "User2's Session",
+    "que": [],
+    "history": []
+  },
+  {
+    "owner": "user3",
+    "isPublic": false,
+    "passcode": "bacon",
+    "sessionName": "User3's Private Session. Passcode: bacon",
+    "que": [],
+    "history": []
+  }
+]
