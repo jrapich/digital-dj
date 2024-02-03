@@ -8,14 +8,21 @@ const secret = process.env.JWT_SECRET;
 const expiration = process.env.TOKEN_EXPIRATION;
 
 class AuthTools {
-  constructor(compare) {
-    this.compare = compare;
+  constructor() {
+    this.compare;
+    this.message;
   }
-  get authCompare() {
+  get compare() {
     return this.compare;
   }
-  set authCompare(compare) {
+  set compare(compare) {
     this.compare = compare;
+  }
+  get message() {
+    return this.message;
+  }
+  set message(message) {
+    this.message = message;
   }
   AuthenticationError() {
     return new GraphQLError("Could not authenticate user.", {
@@ -23,6 +30,7 @@ class AuthTools {
         code: "UNAUTHENTICATED",
       },
       reason: this.compare,
+      message: this.message,
     });
   }
   middleware({ req }) {
