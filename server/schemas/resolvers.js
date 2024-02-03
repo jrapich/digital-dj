@@ -1,5 +1,6 @@
 const { User, Track, Session } = require("../models");
-const { signToken, AuthenticationError } = require("../utils/auth");
+const { AuthTools } = require("../utils/auth");
+const auth = new AuthTools;
 
 const { DevLoggingTools } = require("../utils/dev");
 const dev = new DevLoggingTools(false);
@@ -9,7 +10,9 @@ const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        return await User.findOne({ _id: context.user._id }).populate("");
+        return await User.findOne({ _id: context.user._id })
+          .select({ password: 0, email: 0 })
+          .populate("");
       }
       throw AuthenticationError;
     },
@@ -20,11 +23,15 @@ const resolvers = {
       return await Session.find({ isPublic: true }).populate().exec();
     },
     trackQue: async (parent, { sessionID }) => {
-      const Session = await Session.findById({ _id: sessionID }).populate().exec();
+      const Session = await Session.findById({ _id: sessionID })
+        .populate()
+        .exec();
       return Session.que;
     },
     history: async (parent, { sessionID }) => {
-      const Session = await Session.findById({ _id: sessionID }).populate().exec();
+      const Session = await Session.findById({ _id: sessionID })
+        .populate()
+        .exec();
       return Session.history;
     },
   },
