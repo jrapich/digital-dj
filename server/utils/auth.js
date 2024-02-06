@@ -8,20 +8,20 @@ const secret = process.env.JWT_SECRET;
 const expiration = process.env.TOKEN_EXPIRATION;
 
 class AuthTools {
-  constructor() {
-    this.compare;
-    this.message;
+  constructor(compare, message) {
+    this.compare = compare;
+    this.message = message;
   }
-  get compare() {
+  get comparison() {
     return this.compare;
   }
-  set compare(compare) {
+  set comparison(compare) {
     this.compare = compare;
   }
-  get message() {
+  get errorMessage() {
     return this.message;
   }
-  set message(message) {
+  set errorMessage(message) {
     this.message = message;
   }
   AuthenticationError() {
