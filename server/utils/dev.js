@@ -53,8 +53,8 @@ class DevLoggingTools extends DevEnvironment {
     this.log("is this log happening?", true);
     return;
   }
-  table(tableObject) {
-    if (this.isLogging) {
+  table(tableObject, force) {
+    if (this.isLogging || force) {
       this.break();
       console.table(tableObject);
       this.break();
@@ -117,24 +117,24 @@ class DevLoggingTools extends DevEnvironment {
     }
     return;
   }
-  info(info) {
-    if (this.isLogging) {
+  info(info, force) {
+    if (this.isLogging || force) {
       this.break();
       console.info(info);
       this.break();
     }
     return;
   }
-  warn(warn) {
-    if (this.isLogging) {
+  warn(warn, force) {
+    if (this.isLogging || force) {
       this.break();
       console.warn(warn);
       this.break();
     }
     return;
   }
-  error(error) {
-    if (this.isLogging) {
+  error(error, force) {
+    if (this.isLogging || force) {
       this.break();
       console.error(error);
       this.break();
