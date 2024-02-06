@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const userSchema = new Schema({
+const trackSchema = new Schema({
   artist: {
     type: String,
     trim: true,
@@ -17,8 +17,23 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  createdOn: {
+    type: Date,
+  },
+  lastUpdated: {
+    type: Date,
+  },
 });
 
-const Track = model("track", userSchema);
+trackSchema.pre("save", async function (next) {
+  this.isNew
+    ? ((this.createdOn = new Date()), (this.lastUpdated = new Date()))
+    : (this.lastUpdated = new Date());
+  next();
+});
+
+//TODO: add lots of error handling middleware https://mongoosejs.com/docs/middleware.html
+
+const Track = model("track", trackSchema);
 
 module.exports = Track;

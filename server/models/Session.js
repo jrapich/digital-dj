@@ -1,7 +1,9 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
+const {DevLoggingTools} = require('../utils/dev');
+const dev = new DevLoggingTools(false);
 
-const userSchema = new Schema({
+const sessionSchema = new Schema({
   owner: {
     type: String,
     required: true,
@@ -35,23 +37,56 @@ const userSchema = new Schema({
       ref: "track",
     },
   ],
+  createdOn: {
+    type: Date,
+  },
+  lastUpdated: {
+    type: Date,
+  },
 });
 
-userSchema.pre("save", async function (next) {
+sessionSchema.pre("save", async function (next) {
+  this.isNew
+    ? ((this.createdOn = new Date()), (this.lastUpdated = new Date()))
+    : (this.lastUpdated = new Date());
   if (this.passcode) {
-    if (this.isNew || this.isModified("passcode")) {
-      const saltRounds = 10;
-      this.passcode = await bcrypt.hash(this.passcode, saltRounds);
-    }
+    this.isNew || this.isModified("passcode")
+      ? (this.passcode = await bcrypt.hash(this.passcode, 10))
+      : next();
+    //below converted to ternary operator above
+    // if (this.isNew || this.isModified("passcode")) {
+    //   const saltRounds = 10;
+    //   this.passcode = await bcrypt.hash(this.passcode, saltRounds);
+    // }
   }
-
   next();
 });
 
-userSchema.methods.isCorrectPassword = async function (passcode) {
+sessionSchema.pre("findOneAndDelete", async function (next) {
+  //middleware function to delete all the tracks in que/history first
+  //TODO: test this
+  const sessionToDelete = await this.model.findOneAndUpdate(
+    this.getQuery(),
+    { $pull: { que: { $in: this.session.que } } },
+    { $pull: { history: { $in: this.session.history } } },
+    { new: true }
+  );
+  //some debug logging this middleware function for testing purposes
+  dev.groupTable('session/track deletion middleware:', [sessionToDelete]);
+  next();
+});
+
+//TODO: add lots of error handling middleware https://mongoosejs.com/docs/middleware.html
+
+sessionSchema.methods.isCorrectPassword = async function (passcode) {
   return bcrypt.compare(passcode, this.passcode);
 };
 
-const Session = model("session", userSchema);
+sessionSchema.post("deleteMany", function (res) {
+  dev.log(`mongoose: user ${res.getQuery()} sessions deleted successfully`, force);
+  dev.group("session post hook after deleteMany:", [res.getQuery(), res]);
+});
+
+const Session = model("session", sessionSchema);
 
 module.exports = Session;
