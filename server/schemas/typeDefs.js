@@ -2,8 +2,8 @@ const typeDefs = `
     type User {
         _id: ID
         username: String!
-        email: String!
-        password: String!
+        email: String
+        password: String
         sessionList: [Session]
     }
 
@@ -20,13 +20,6 @@ const typeDefs = `
         URL: String!
     }
 
-    input AddTrack {
-        artist: String
-        title: String
-        platform: String
-        URL: String!
-    }
-
     type Session {
         _id: ID
         owner: String!
@@ -36,6 +29,19 @@ const typeDefs = `
         passcode: String
         que: [Track]
         history: [Track]
+    }
+    type MutationResult {
+        code: Int
+        message: String
+        user: String
+        time: String
+    }
+
+    input AddTrack {
+        artist: String
+        title: String
+        platform: String
+        URL: String!
     }
 
     input AddSession {
@@ -55,11 +61,12 @@ const typeDefs = `
 
     type Mutation {
         addUser(username: String!, email: String!, password: String!): Auth
+        deleteUser(email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
         addSession(newSession: AddSession!): Session
-        deleteSession(SessionID: ID!): Session
-        addTrack(trackData: AddTrack!): Session
-        deleteTrack(trackID: ID!): Session
+        deleteSession(SessionID: ID!): MutationResult
+        addTrack(trackData: AddTrack!, SessionID: ID!): MutationResult
+        deleteTrack(trackID: ID!, SessionID: ID!): MutationResult
     }
 `;
 
