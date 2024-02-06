@@ -1,6 +1,7 @@
 //tools to help me debug/log different things when needed
 
 const dotenv = require("dotenv").config();
+const { printTable } = require("console-table-printer");
 
 class DevEnvironment {
   constructor() {
@@ -19,7 +20,7 @@ class DeployedEnvironment extends DevEnvironment {
 class DevLoggingTools extends DevEnvironment {
   constructor(logSelf) {
     super();
-    dotenv.error ? console.error(dotenv.error) : null;
+    dotenv.error ? this.error(dotenv.error, force) : null;
     this.selfLog(logSelf);
   }
   break() {
@@ -53,12 +54,24 @@ class DevLoggingTools extends DevEnvironment {
     this.log("is this log happening?", true);
     return;
   }
+  error(error, force) {
+    if (this.isLogging || force) {
+      this.break();
+      console.error(error);
+      this.break();
+    }
+    return;
+  }
   table(tableObject, force) {
     if (this.isLogging || force) {
       this.break();
-      console.table(tableObject);
+      printTable(tableObject);
       this.break();
     }
+    return;
+  }
+  tableError(tableObject, force) {
+    (this.isLogging || force) ? this.error(this.table(tableObject)) : null;
     return;
   }
   group(groupedLogsName, groupedLogsArray) {
@@ -68,6 +81,19 @@ class DevLoggingTools extends DevEnvironment {
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
         this.log(groupedLogsArray[i]);
+      }
+      console.groupEnd();
+      this.break();
+    }
+    return;
+  }
+  groupTable(groupedLogsName, groupedLogsArray) {
+    if (this.isLogging) {
+      this.break();
+      console.group(groupedLogsName);
+      this.break();
+      for (let i = 0; i < groupedLogsArray.length; i++) {
+        this.table(groupedLogsArray[i]);
       }
       console.groupEnd();
       this.break();
@@ -95,6 +121,19 @@ class DevLoggingTools extends DevEnvironment {
       this.break();
       for (let i = 0; i < groupedLogsArray.length; i++) {
         this.log(groupedLogsArray[i]);
+      }
+      console.groupEnd();
+      this.break();
+    }
+    return;
+  }
+  collapsedGroupTable(groupedLogsName, groupedLogsArray) {
+    if (this.isLogging) {
+      this.break();
+      console.groupCollapsed(groupedLogsName);
+      this.break();
+      for (let i = 0; i < groupedLogsArray.length; i++) {
+        this.table(groupedLogsArray[i]);
       }
       console.groupEnd();
       this.break();
@@ -133,16 +172,8 @@ class DevLoggingTools extends DevEnvironment {
     }
     return;
   }
-  error(error, force) {
+  trace(trace, force) {
     if (this.isLogging || force) {
-      this.break();
-      console.error(error);
-      this.break();
-    }
-    return;
-  }
-  trace(trace) {
-    if (this.isLogging) {
       //we could easily add more logic here for better tracing
       this.break();
       console.trace(trace);
@@ -150,8 +181,8 @@ class DevLoggingTools extends DevEnvironment {
     }
     return;
   }
-  clear() {
-    if (this.isLogging) {
+  clear(force) {
+    if (this.isLogging || force) {
       console.clear();
     }
     return;
