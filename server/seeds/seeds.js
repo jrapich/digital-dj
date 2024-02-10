@@ -1,5 +1,5 @@
 const db = require("../config/connection");
-const { DevLoggingTools } = require("../utils/dev");
+const { DevLoggingTools } = require("../utils");
 const dev = new DevLoggingTools(true);
 const { User, Track, Session } = require("../models");
 

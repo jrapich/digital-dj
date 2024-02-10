@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
-const {DevLoggingTools} = require('../utils/dev');
+const {DevLoggingTools} = require('../utils');
 const dev = new DevLoggingTools(false);
 
 const sessionSchema = new Schema({
@@ -83,7 +83,7 @@ sessionSchema.methods.isCorrectPassword = async function (passcode) {
 };
 
 sessionSchema.post("deleteMany", function (res) {
-  dev.log(`mongoose: user ${res.getQuery()} sessions deleted successfully`, force);
+  dev.log(`mongoose: user ${res.getQuery()} sessions deleted successfully`, true);
   dev.group("session post hook after deleteMany:", [res.getQuery(), res]);
 });
 

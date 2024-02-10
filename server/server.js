@@ -3,9 +3,8 @@ const express = require("express");
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
-const { DevLoggingTools } = require("./utils/dev");
+const { DevLoggingTools, AuthTools } = require("./utils");
 const dev = new DevLoggingTools(true);
-const { AuthTools } = require("./utils/auth");
 const auth = new AuthTools();
 
 const { typeDefs, resolvers } = require("./schemas");

@@ -1,6 +1,8 @@
 const { Schema, model } = require("mongoose");
 const { Session } = require('./');
 const bcrypt = require("bcrypt");
+const { DevLoggingTools} = require('../utils');
+const dev = new DevLoggingTools(false);
 
 const userSchema = new Schema({
   username: {
@@ -66,7 +68,7 @@ userSchema.methods.isCorrectPassword = async function (password) {
 
 userSchema.post("validate", function (document){
   dev.group("post user validate mongoose document:", document);
-  dev.log(`mongoose: new/existing user validated`, force);
+  dev.log(`mongoose: new/existing user validating`, true);
 });
 
 const User = model("user", userSchema);
