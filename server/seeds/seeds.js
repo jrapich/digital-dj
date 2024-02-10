@@ -35,6 +35,36 @@ db.once("open", async () => {
           sessions[i]
         );
       }
+      const session = await Session.find();
+      const track = await Track.find();
+      //add 1 session to each of the 3 user's sessionList
+      for (let j = 0; j < session.length; j++) {
+        await User.findOneAndUpdate(
+          {_id:user[j]._id},
+          {$addToSet: {sessionList: session[j]._id}}
+        );
+        await Session.findOneAndUpdate(
+          {_id:session[j]._id},
+          {$addToSet: {que: track[j]}},
+        );
+        await Session.findOneAndUpdate(
+          {_id:session[j]._id},
+          {$addToSet: {history: track[j]._id}},
+        );
+        dev.multiLog(
+          false,
+          "iteration:",
+          j,
+          "user:",
+          user[j],
+          "session:",
+          session[j],
+          "track:",
+          tracks[j]
+        );
+      }
+
+
       dev.log("Database dropped and reseeded with dev environment data", true);
       process.exit(0);
     }
