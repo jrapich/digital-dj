@@ -6,6 +6,7 @@ const dev = new DevLoggingTools(false);
 
 const secret = process.env.JWT_SECRET;
 const expiration = process.env.TOKEN_EXPIRATION;
+const devEmail = process.env.DEV_EMAIL
 
 class AuthTools {
   constructor(compare, message) {
@@ -35,24 +36,28 @@ class AuthTools {
   }
   middleware({ req }) {
     let token = req.body.token || req.query.token || req.headers.authorization;
-
     if (req.headers.authorization) {
       token = token.split(" ").pop().trim();
+    }
+
+    if (!dev.isProduction && !token) {
+      dev.log("no jwt token found, if token errors are appearing while using Apollo Graphql Server, add this authorization key to connection headers:");
+      dev.log(devToken);
     }
 
     if (!token) {
       dev.warn("JWT token not found or is invalid! req token info follows:");
       dev.groupError("token", [
-        this.req.body.token,
-        this.req.query.token,
-        this.req.headers.authorization,
+        req.body.token,
+        req.query.token,
+        req.headers.authorization,
       ]);
       return req;
     }
 
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
-      this.req.user = data;
+      req.user = data;
     } catch (e) {
       dev.error(e);
       dev.warn("invalid token data as follows:");
@@ -65,7 +70,17 @@ class AuthTools {
     dev.table(payload);
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   }
+  signDevToken(email) {
+    if (!dev.isProduction) {
+      const token = jwt.sign({ data: email }, secret);
+      return token;
+    }
+    return;
+  }
 }
+
+const devAuth = new AuthTools();
+const devToken = devAuth.signDevToken(devEmail);
 
 module.exports = {
   AuthTools,
