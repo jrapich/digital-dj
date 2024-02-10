@@ -1,80 +1,9 @@
-const { GraphQLError } = require("graphql");
 const jwt = require("jsonwebtoken");
-
 const { DevLoggingTools } = require("./dev");
 const dev = new DevLoggingTools(false);
-
 const secret = process.env.JWT_SECRET;
 const expiration = process.env.TOKEN_EXPIRATION;
 const devEmail = process.env.DEV_EMAIL
-
-class AuthErrors {
-  constructor() {
-    this.message;
-    this.reason;
-    this.status;
-    this.type;
-    this.user;
-  }
-  get setReason() {
-    return this.reason;
-  }
-  set setReason(reason) {
-    this.reason = reason;
-  }
-  get errorMessage() {
-    return this.message;
-  }
-  set errorMessage(message) {
-    this.message = message;
-  }
-  get statusCode() {
-    return this.status;
-  }
-  set statusCode(code) {
-    this.status = code;
-  }
-  get username() {
-    return this.user;
-  }
-  set username(user) {
-    this.user = user;
-  }
-  AuthenticationError() {
-    return new GraphQLError("Authentication Failure", {
-      extensions: {
-        code: "UNAUTHENTICATED",
-        reason: this.reason,
-        message: this.message,
-        status: this.status,
-        user: this.username,
-        query: this.query,
-        mutation: this.mutation,
-        type: this.type,
-      },
-    });
-  }
-}
-
-class QueryError extends AuthErrors {
-  constructor() {
-    super();
-    this.query = "query";
-  }
-  get setQuery() {
-    return this.query;
-  }
-}
-
-class MutationError extends AuthErrors {
-  constructor() {
-    super();
-    this.mutation = "mutation";
-  }
-  get setMutation() {
-    return this.mutation;
-  }
-}
 
 class AuthTools  {
   middleware({ req }) {
@@ -125,7 +54,7 @@ const devAuth = new AuthTools();
 const devToken = devAuth.signDevToken({email:devEmail});
 
 module.exports = {
-  AuthTools, QueryError, MutationError,
+  AuthTools,
   //below is what is translated to the OOP above
 
   // AuthenticationError: new GraphQLError("Could not authenticate user.", {
