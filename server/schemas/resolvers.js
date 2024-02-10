@@ -1,42 +1,111 @@
 const { User, Track, Session } = require("../models");
-const { AuthTools } = require("../utils/auth");
+const { AuthTools, QueryError, MutationError } = require("../utils/auth");
 const auth = new AuthTools();
+const query = new QueryError();
+const mutation = new MutationError();
 
 const { DevLoggingTools } = require("../utils/dev");
 const dev = new DevLoggingTools(false);
 
-//TODO: aDD resilient error checking and handling
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
+      dev.group("me query context", [context.user]);
+      query.setReason = "username";
+      query.type = "me";
+      query.username = context.user.username;
+      let user;
       if (context.user) {
-        return await User.findOne({ _id: context.user._id })
+        user = await User.findOne({ _id: context.user._id })
           .select({ password: 0, email: 0 })
           .populate("");
+      } else {
+        query.errorMessage = "no valid user is currently logged in";
+        query.statusCode = 401;
+        throw query.AuthenticationError();
       }
-      auth.comparison = "username";
-      auth.errorMessage = "no user is currently logged in";
-      throw AuthenticationError;
+      if (!user) {
+        query.errorMessage = "user not found";
+        query.statusCode = 404;
+        throw query.AuthenticationError();
+      }
+
+      return user;
     },
     user: async (parent, { username }) => {
-      return await User.findOne({ username })
+      dev.multiLog(false, 'query user args:', username);
+      query.setReason = "username";
+      query.type = "user";
+      query.username = username;
+      let user;
+      if (username) {
+        user = await User.findOne({ username })
         .select({ password: 0, email: 0 })
-        .populate();
+        .populate({path:"sessionList"}).exec();
+      } else {
+        query.errorMessage = "no username provided";
+        query.statusCode = 400;
+        throw query.AuthenticationError();
+      }
+      if (!user) {
+        query.errorMessage = `username ${username} not found`;
+        query.statusCode = 404;
+        throw query.AuthenticationError();
+      }
+
+      return user;
     },
     publicSessionList: async () => {
+      dev.log("query: all public sessions");
       return await Session.find({ isPublic: true }).populate().exec();
     },
-    trackQue: async (parent, { sessionID }) => {
-      const Session = await Session.findById({ _id: sessionID })
-        .populate()
+    trackQue: async (parent, {sessionID}, context ) => {
+      dev.log(`query to session que ${sessionID}`);
+      query.type = "trackQue";
+      query.username = context.user.username;
+      query.setReason = "sessionID";
+      let session;
+      if (sessionID) {
+        session = await Session.findById({_id: sessionID})
+        .populate({path:"que"})
         .exec();
-      return Session.que;
+      }  else {
+        query.errorMessage = "no session ID provided";
+        query.statusCode = 400;
+        throw query.AuthenticationError();
+      }
+
+      if (!session.que[0]) {
+        query.errorMessage = "que is empty, or session ID doesn't exist";
+        query.statusCode = 404;
+        throw query.AuthenticationError();
+      }
+      
+      return session.que;
     },
-    history: async (parent, { sessionID }) => {
-      const Session = await Session.findById({ _id: sessionID })
-        .populate()
+    history: async (parent, { sessionID }, context) => {
+      dev.log(`query to session history ${sessionID}`);
+      query.type = "history";
+      query.username = context.user.username;
+      query.setReason = "sessionID";
+      let session;
+      if (sessionID) {
+        session = await Session.findById({_id: sessionID})
+        .populate({path:"history"})
         .exec();
-      return Session.history;
+      }  else {
+        query.errorMessage = "no session ID provided";
+        query.statusCode = 400;
+        throw query.AuthenticationError();
+      }
+
+      if (!session.history[0]) {
+        query.errorMessage = "history is empty, or session ID doesn't exist";
+        query.statusCode = 404;
+        throw query.AuthenticationError();
+      }
+      
+      return session.history;
     },
   },
   Mutation: {
@@ -57,21 +126,21 @@ const resolvers = {
       });
 
       if (!user) {
-        auth.comparison = "email";
+        auth.setReason = "email";
         auth.errorMessage = "no account with that email found";
-        throw auth.AuthenticationError;
+        throw auth.AuthenticationError();
       }
 
       const checkPW = await user.isCorrectPassword(password);
 
       if (!checkPW) {
-        auth.comparison = "password";
+        auth.setReason = "password";
         auth.errorMessage = "incorrect password";
         throw auth.AuthenticationError;
       }
 
       if (user._id !== context.user._id) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage = "cannot delete this user as you are not this user";
         dev.error(
           {
@@ -99,7 +168,7 @@ const resolvers = {
       });
 
       if (!user) {
-        auth.comparison = "email";
+        auth.setReason = "email";
         auth.errorMessage = "no account with that email found";
         throw auth.AuthenticationError;
       }
@@ -107,7 +176,7 @@ const resolvers = {
       const checkPW = await user.isCorrectPassword(password);
 
       if (!checkPW) {
-        auth.comparison = "password";
+        auth.setReason = "password";
         auth.errorMessage = "incorrect password";
         throw AuthenticationError;
       }
@@ -117,7 +186,7 @@ const resolvers = {
     },
     addSession: async (parent,{ ownerID, isPublic, sessionName, passcode }, context) => {
       if (!context.user) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage = "no user is currently logged in";
         throw auth.AuthenticationError;
       }
@@ -136,20 +205,20 @@ const resolvers = {
     },
     deleteSession: async (parent, sessionID, context) => {
       if (!context.user) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage = "no user is currently logged in";
         throw auth.AuthenticationError;
       }
 
       const session = await Session.findById({ sessionID });
       if (!session) {
-        auth.comparison = "session";
+        auth.setReason = "session";
         auth.errorMessage = "no session found by that ID";
         throw auth.AuthenticationError;
       }
 
       if (session.ownerID !== context.user._id) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage =
           "cannot delete this session as you are not the owner";
         dev.error(
@@ -184,14 +253,14 @@ const resolvers = {
     },
     addTrack: async (parent, { addTrack, sessionID }, context) => {
       if (!context.user) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage = "no user is currently logged in";
         throw auth.AuthenticationError;
       }
 
       const session = await Session.findById({ sessionID });
       if (!session) {
-        auth.comparison = "session";
+        auth.setReason = "session";
         auth.errorMessage = "no session found by that id";
         throw auth.AuthenticationError;
       }
@@ -214,21 +283,21 @@ const resolvers = {
     },
     deleteTrack: async (parent, { trackID, sessionID }, context) => {
       if (!context.user) {
-        auth.comparison = "username";
+        auth.setReason = "username";
         auth.errorMessage = "no user is currently logged in";
         throw auth.AuthenticationError;
       }
 
       const session = await Session.findById({ sessionID });
       if (!session) {
-        auth.comparison = "session";
+        auth.setReason = "session";
         auth.errorMessage = "no session found by that id";
         throw auth.AuthenticationError;
       }
       dev.table(session);
 
       if (context.user !== session.ownerID) {
-        (auth.comparison = "username"),
+        (auth.setReason = "username"),
           (auth.errorMessage = "you are not the owner of this session"),
           dev.error(
             {
@@ -248,7 +317,7 @@ const resolvers = {
         { new: true }
       );
       if (!newQue) {
-        auth.comparison = "track";
+        auth.setReason = "track";
         auth.errorMessage = "no track found by that id";
         throw auth.AuthenticationError;
       }

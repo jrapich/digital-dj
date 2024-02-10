@@ -55,8 +55,8 @@ const typeDefs = `
         me: User
         user(username: String!): User
         publicSessionList: [Session]
-        trackQue(SessionID: ID!): [Track]
-        history(SessionID: ID!): [Track]
+        trackQue(sessionID: ID!): [Track]
+        history(sessionID: ID!): [Track]
     }
 
     type Mutation {
