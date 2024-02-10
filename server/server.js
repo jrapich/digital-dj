@@ -16,6 +16,17 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  formatError: function ({message, extensions}) {
+    dev.groupError(`'${message}' from ${extensions.type} ${extensions.query || extensions.mutation},`, [new Date(), extensions]);
+    return {
+      message: extensions.message,
+      reason: extensions.reason,
+      code: extensions.code,
+      status: extensions.status,
+      user: extensions.user,
+      time: new Date(),
+    }
+  }
 });
 
 // Create a new instance of an Apollo server with the GraphQL schema

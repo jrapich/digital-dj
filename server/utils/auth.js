@@ -8,16 +8,19 @@ const secret = process.env.JWT_SECRET;
 const expiration = process.env.TOKEN_EXPIRATION;
 const devEmail = process.env.DEV_EMAIL
 
-class AuthTools {
-  constructor(compare, message) {
-    this.compare = compare;
-    this.message = message;
+class AuthErrors {
+  constructor() {
+    this.message;
+    this.reason;
+    this.status;
+    this.type;
+    this.user;
   }
-  get comparison() {
-    return this.compare;
+  get setReason() {
+    return this.reason;
   }
-  set comparison(compare) {
-    this.compare = compare;
+  set setReason(reason) {
+    this.reason = reason;
   }
   get errorMessage() {
     return this.message;
@@ -25,15 +28,55 @@ class AuthTools {
   set errorMessage(message) {
     this.message = message;
   }
+  get statusCode() {
+    return this.status;
+  }
+  set statusCode(code) {
+    this.status = code;
+  }
+  get username() {
+    return this.user;
+  }
+  set username(user) {
+    this.user = user;
+  }
   AuthenticationError() {
-    return new GraphQLError("Could not authenticate user.", {
+    return new GraphQLError("Authentication Failure", {
       extensions: {
         code: "UNAUTHENTICATED",
+        reason: this.reason,
+        message: this.message,
+        status: this.status,
+        user: this.username,
+        query: this.query,
+        mutation: this.mutation,
+        type: this.type,
       },
-      reason: this.compare,
-      message: this.message,
     });
   }
+}
+
+class QueryError extends AuthErrors {
+  constructor() {
+    super();
+    this.query = "query";
+  }
+  get setQuery() {
+    return this.query;
+  }
+}
+
+class MutationError extends AuthErrors {
+  constructor() {
+    super();
+    this.mutation = "mutation";
+  }
+  get setMutation() {
+    return this.mutation;
+  }
+}
+
+class AuthTools  {
   middleware({ req }) {
     let token = req.body.token || req.query.token || req.headers.authorization;
     if (req.headers.authorization) {
@@ -41,7 +84,7 @@ class AuthTools {
     }
 
     if (!dev.isProduction && !token) {
-      dev.log("no jwt token found, if token errors are appearing while using Apollo Graphql Server, add this authorization key to connection headers:");
+      dev.log("no jwt token found, if token errors are appearing while using Apollo Graphql Server UI, add this authorization key to connection headers:");
       dev.log(devToken);
     }
 
@@ -58,32 +101,31 @@ class AuthTools {
     try {
       const { data } = jwt.verify(token, secret, { maxAge: expiration });
       req.user = data;
-    } catch (e) {
-      dev.error(e);
-      dev.warn("invalid token data as follows:");
-      dev.log(token);
+    } catch (err) {
+      dev.log('invalid token received', true);
+      dev.groupError("invalid token data" [err, data, token]);
     }
     return req;
   }
   signToken({ email, username, _id }) {
-    const payload = { email, username, _id };
+    const payload = { email:email, username:username, _id:_id };
     dev.table(payload);
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   }
-  signDevToken(email) {
+  signDevToken({email, username, _id}) {
     if (!dev.isProduction) {
-      const token = jwt.sign({ data: email }, secret);
-      return token;
+      const payload = { email:email, username:username, _id:_id }
+      return jwt.sign({ data: payload }, secret);
     }
     return;
   }
 }
 
 const devAuth = new AuthTools();
-const devToken = devAuth.signDevToken(devEmail);
+const devToken = devAuth.signDevToken({email:devEmail});
 
 module.exports = {
-  AuthTools,
+  AuthTools, QueryError, MutationError,
   //below is what is translated to the OOP above
 
   // AuthenticationError: new GraphQLError("Could not authenticate user.", {
