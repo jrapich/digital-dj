@@ -82,15 +82,31 @@ class MutationError extends GraphQLErrorData {
 }
 
 class DuplicateKeyError extends MutationError {
-    constructor(mutation, code, keyValue) {
-      super(mutation);
-      this.status = code;
-      this.reason = keyValue;
-      this.code = "Duplicate Key"
-      this.message = "MongoDB Duplicate Key Error: cannot create entry that is a duplicate of another";
-    }
+  constructor(mutation, code, keyValue) {
+    super(mutation);
+    this.status = code;
+    this.reason = keyValue;
+    this.code = "Duplicate Key";
+    this.message =
+      "MongoDB Duplicate Key Error: cannot create entry that is a duplicate of another";
   }
+}
+
+const mongoErrorThrower = (err, mutation) => {
+  switch (err.code) {
+    case 11000:
+      throw new DuplicateKeyError('addUser', err.code, err.keyValue);
+      break;
+    default:
+      dev.log(`no valid mongo error case detected for ${mutation}`);
+      break;
+  }
+}
 
 module.exports = {
-    AuthenticationError, QueryError, MutationError, DuplicateKeyError
-}
+  AuthenticationError,
+  QueryError,
+  MutationError,
+  DuplicateKeyError,
+  mongoErrorThrower,
+};

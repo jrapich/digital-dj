@@ -9,6 +9,7 @@ const {
   QueryError,
   MutationError,
   DuplicateKeyError,
+  mongoErrorThrower,
 } = require("./error");
 
 module.exports = {
@@ -20,4 +21,5 @@ module.exports = {
   QueryError,
   MutationError,
   DuplicateKeyError,
+  mongoErrorThrower,
 };
