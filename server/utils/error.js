@@ -81,8 +81,16 @@ class MutationError extends GraphQLErrorData {
   }
 }
 
-
+class DuplicateKeyError extends MutationError {
+    constructor(mutation, code, keyValue) {
+      super(mutation);
+      this.status = code;
+      this.reason = keyValue;
+      this.code = "Duplicate Key"
+      this.message = "MongoDB Duplicate Key Error: cannot create entry that is a duplicate of another";
+    }
+  }
 
 module.exports = {
-    AuthenticationError, QueryError, MutationError,
+    AuthenticationError, QueryError, MutationError, DuplicateKeyError
 }
