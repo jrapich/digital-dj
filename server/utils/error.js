@@ -3,50 +3,49 @@ const { DevLoggingTools } = require("./dev");
 const dev = new DevLoggingTools(false);
 
 class GraphQLErrorData {
-  constructor(code) {
-    this.code;
-    this.reason;
-    this.message;
-    this.status;
-    this.user;
+  constructor() {
     this.extensions = {
-      code: this.code,
-      reason: this.reason,
-      message: this.message,
-      status: this.status,
-      user: this.username,
+      code: null,
+      reason: null,
+      message: null,
+      status: null,
+      user: null,
+      query: null,
+      mutation: null,
+      type: null,
     };
   }
   get setReason() {
-    return this.reason;
+    return this.extensions.reason;
   }
   set setReason(reason) {
-    this.reason = reason;
+    this.extensions.reason = reason;
   }
   get errorMessage() {
-    return this.message;
+    return this.extensions.message;
   }
   set errorMessage(message) {
-    this.message = message;
+    this.extensions.message = message;
   }
   get statusCode() {
-    return this.status;
+    return this.extensions.status;
   }
   set statusCode(code) {
-    this.status = code;
+    this.extensions.status = code;
   }
   get username() {
-    return this.user;
+    return this.extensions.user;
   }
   set username(user) {
-    this.user = user;
+    this.extensions.user = user;
   }
 }
 
 class AuthenticationError extends GraphQLErrorData {
-  constructor() {
+  constructor(obj) {
     super();
-    this.code = "UNAUTHENTICATED";
+    this.extensions = obj.extensions;
+    this.extensions.code = "UNAUTHENTICATED";
     return new GraphQLError("Authentication Failure", {
       extensions: this.extensions,
     });
@@ -54,13 +53,12 @@ class AuthenticationError extends GraphQLErrorData {
 }
 
 class QueryError extends GraphQLErrorData {
-  constructor(query) {
+  constructor(query, obj) {
     super();
-    this.code = "QUERY FAILED";
-    this.query = "query";
-    this.type = query;
-    this.expirations.query = this.query;
-    this.extensions.type = this.type;
+    this.extensions = obj.extensions;
+    this.extensions.code = "QUERY FAILED";
+    this.extensions.query = query;
+    this.extensions.type = "query";
     return new GraphQLError("Query Failure", {
       extensions: this.extensions,
     });
@@ -68,34 +66,38 @@ class QueryError extends GraphQLErrorData {
 }
 
 class MutationError extends GraphQLErrorData {
-  constructor(mutation) {
+  constructor(mutation, obj) {
     super();
-    this.code = "MUTATION FAILED";
-    this.query = "mutation";
-    this.type = mutation;
-    this.extensions.mutation = this.mutation;
-    this.extensions.type = this.type;
+    this.extensions = obj.extensions;
+    this.extensions.code = "MUTATION FAILED";
+    this.extensions.mutation = "mutation";
+    this.extensions.type = mutation;
     return new GraphQLError("Mutation Failure", {
+      extensions: this.extensions,
+    });
+  }
+  
+}
+
+class DuplicateKeyError extends MutationError {
+  constructor(mutation, obj, code, keyValue) {
+    super(mutation, obj);
+    this.extensions.status = code;
+    this.extensions.reason = keyValue;
+    this.extensions.code = "Duplicate Key";
+    this.extensions.message =
+      "MongoDB Duplicate Key Error: cannot create entry that is a duplicate of another";
+    return new GraphQLError("Duplicate Key Error", {
       extensions: this.extensions,
     });
   }
 }
 
-class DuplicateKeyError extends MutationError {
-  constructor(mutation, code, keyValue) {
-    super(mutation);
-    this.status = code;
-    this.reason = keyValue;
-    this.code = "Duplicate Key";
-    this.message =
-      "MongoDB Duplicate Key Error: cannot create entry that is a duplicate of another";
-  }
-}
-
-const mongoErrorThrower = (err, mutation) => {
+const mongoErrorThrower = (err, obj, mutation) => {
   switch (err.code) {
     case 11000:
-      throw new DuplicateKeyError('addUser', err.code, err.keyValue);
+      const key = err.keyValue.username || err.keyValue.email;
+      throw new DuplicateKeyError(mutation, obj, err.code, key);
       break;
     default:
       dev.log(`no valid mongo error case detected for ${mutation}`);
@@ -104,6 +106,7 @@ const mongoErrorThrower = (err, mutation) => {
 }
 
 module.exports = {
+  GraphQLErrorData,
   AuthenticationError,
   QueryError,
   MutationError,

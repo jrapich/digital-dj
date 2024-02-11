@@ -6,6 +6,7 @@ const {
 const { AuthTools } = require("./auth");
 const {
   AuthenticationError,
+  GraphQLErrorData,
   QueryError,
   MutationError,
   DuplicateKeyError,
@@ -17,6 +18,7 @@ module.exports = {
   DeployedEnvironment,
   DevLoggingTools,
   AuthTools,
+  GraphQLErrorData,
   AuthenticationError,
   QueryError,
   MutationError,
