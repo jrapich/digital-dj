@@ -93,12 +93,40 @@ class DuplicateKeyError extends MutationError {
   }
 }
 
-const mongoErrorThrower = (err, obj, mutation) => {
-  switch (err.code) {
+class PasswordError extends MutationError {
+  constructor(mutation, obj, err) {
+    super(mutation, obj);
+    switch (err.type) {
+      case "minlength":
+        this.extensions.reason = "minlength";
+        this.extensions.code = "Password Length";
+        this.extensions.message = "MongoDB Password Validation Error: password must be at least 8 characters long";
+        return new GraphQLError("Password Length Validation", {
+          extensions: this.extensions,
+        });
+        break;
+      case "maxlength":
+        this.extensions.reason = "maxlength";
+        this.extensions.code = "Password Length";
+        this.extensions.message = "MongoDB Password Validation Error: password has exceeded character limit";
+        return new GraphQLError("Password Length Validation", {
+          extensions: this.extensions,
+        });
+        break;
+      default:
+        break;
+    }
+  }
+}
+
+const mongoErrorThrower = (mutation, obj, err) => {
+  switch (err.code || err.errors.password.properties.path) {
     case 11000:
       const key = err.keyValue.username || err.keyValue.email;
       throw new DuplicateKeyError(mutation, obj, err.code, key);
       break;
+    case "password":
+      throw new PasswordError(mutation, obj, err.errors.password.properties);
     default:
       dev.log(`no valid mongo error case detected for ${mutation}`);
       break;
