@@ -38,12 +38,12 @@ class AuthTools  {
   }
   signToken({ email, username, _id }) {
     const payload = { email:email, username:username, _id:_id };
-    dev.table(payload);
+    //dev.table(payload);
     return jwt.sign({ data: payload }, secret, { expiresIn: expiration });
   }
   signDevToken({email, username, _id}) {
     if (!dev.isProduction) {
-      const payload = { email:email, username:username, _id:_id }
+      const payload = { email:email, username:username, _id:_id };
       return jwt.sign({ data: payload }, secret);
     }
     return;
