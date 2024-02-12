@@ -53,8 +53,8 @@ userSchema.pre("findOneAndDelete", async function (next) {
   //TODO: test this
   const userToDelete = await this.model.findOne(this.getQuery());
   //some debug logging this middleware function for testing purposes
-  dev.groupTable('user/session list deletion middleware', [userToDelete, userToDelete.sessionList]);
-  const deleteSession = await Session.deleteMany(
+  //dev.groupTable('user/session list deletion middleware', [userToDelete, userToDelete.sessionList]);
+  const deleteSession = await this.model.deleteMany(
     {_id: {$in: userToDelete.sessionList}}
   );
   dev.log(deleteSession);
@@ -67,7 +67,7 @@ userSchema.methods.isCorrectPassword = async function (password) {
 };
 
 userSchema.post("validate", function (document){
-  dev.group("post user validate mongoose document:", document);
+  dev.group("post user validate mongoose document:", [document]);
   dev.log(`mongoose: new/existing user validating`, true);
 });
 
