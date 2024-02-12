@@ -93,6 +93,23 @@ class DuplicateKeyError extends MutationError {
   }
 }
 
+class EmailError extends MutationError {
+  constructor(mutation, obj, err) {
+    super(mutation, obj);
+    switch (err.type) {
+      case "regexp":
+        this.extensions.reason = "email regexp";
+        this.extensions.code = "Email Validation";
+        this.extensions.message = "MongoDB Email Validation Error: email must be a valid email address";
+        return new GraphQLError("Email Validation", {
+          extensions: this.extensions,
+        });
+      default:
+        break;
+    }
+  }
+}
+
 class PasswordError extends MutationError {
   constructor(mutation, obj, err) {
     super(mutation, obj);
@@ -120,13 +137,22 @@ class PasswordError extends MutationError {
 }
 
 const mongoErrorThrower = (mutation, obj, err) => {
-  switch (err.code || err.errors.password.properties.path) {
+  let value;
+  if (err.code) {
+    value = err.code;
+  } else if (err.errors.password) {
+    value = err.errors.password.properties.path;
+  } else if (err.errors.email) {
+    value = err.errors.email.properties.path;
+  }
+  switch (value) {
     case 11000:
       const key = err.keyValue.username || err.keyValue.email;
       throw new DuplicateKeyError(mutation, obj, err.code, key);
-      break;
     case "password":
       throw new PasswordError(mutation, obj, err.errors.password.properties);
+    case "email":
+      throw new EmailError(mutation, obj, err.errors.email.properties);
     default:
       dev.log(`no valid mongo error case detected for ${mutation}`);
       break;
