@@ -1,6 +1,12 @@
 require("dotenv").config();
 const express = require("express");
 const { ApolloServer } = require("@apollo/server");
+const {
+  ApolloServerPluginLandingPageLocalDefault,
+} = require("@apollo/server/plugin/landingPage/default");
+const {
+  ApolloServerPluginLandingPageDisabled,
+} = require("@apollo/server/plugin/disabled");
 const { expressMiddleware } = require("@apollo/server/express4");
 const path = require("path");
 const { DevLoggingTools, AuthTools } = require("./utils");
@@ -15,11 +21,19 @@ const app = express();
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  formatError: function ({message, extensions}) {
+  plugins: [
+    dev.isProduction
+      ? ApolloServerPluginLandingPageDisabled()
+      : ApolloServerPluginLandingPageLocalDefault(),
+  ],
+  formatError: function ({ message, extensions }) {
     const time = new Date();
     let option;
-    extensions.query  ? option = "query" : option = "mutation";
-    dev.groupError(`'${message}' from ${extensions.type} ${option},`, [time, extensions]);
+    extensions.query ? (option = "query") : (option = "mutation");
+    dev.groupError(`'${message}' from ${extensions.type} ${option},`, [
+      time,
+      extensions,
+    ]);
     return {
       message: extensions.message,
       reason: extensions.reason,
@@ -27,8 +41,8 @@ const server = new ApolloServer({
       status: extensions.status,
       user: extensions.user,
       time: time,
-    }
-  }
+    };
+  },
 });
 
 // Create a new instance of an Apollo server with the GraphQL schema
