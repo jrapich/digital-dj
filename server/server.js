@@ -16,14 +16,17 @@ const server = new ApolloServer({
   typeDefs,
   resolvers,
   formatError: function ({message, extensions}) {
-    dev.groupError(`'${message}' from ${extensions.type} ${extensions.query || extensions.mutation},`, [new Date(), extensions]);
+    const time = new Date();
+    let option;
+    extensions.query  ? option = "query" : option = "mutation";
+    dev.groupError(`'${message}' from ${extensions.type} ${option},`, [time, extensions]);
     return {
       message: extensions.message,
       reason: extensions.reason,
       code: extensions.code,
       status: extensions.status,
       user: extensions.user,
-      time: new Date(),
+      time: time,
     }
   }
 });

@@ -46,10 +46,11 @@ class GraphQLErrorData {
 }
 
 class AuthenticationError extends GraphQLErrorData {
-  constructor(obj) {
+  constructor(option, obj) {
     super();
     this.extensions = obj.extensions;
     this.extensions.code = "UNAUTHENTICATED";
+    this.extensions.type = option;
     return new GraphQLError("Authentication Failure", {
       extensions: this.extensions,
     });
@@ -61,8 +62,8 @@ class QueryError extends GraphQLErrorData {
     super();
     this.extensions = obj.extensions;
     this.extensions.code = "QUERY FAILED";
-    this.extensions.query = query;
-    this.extensions.type = "query";
+    this.extensions.query = true;
+    this.extensions.type = query;
     return new GraphQLError("Query Failure", {
       extensions: this.extensions,
     });
@@ -74,7 +75,7 @@ class MutationError extends GraphQLErrorData {
     super();
     this.extensions = obj.extensions;
     this.extensions.code = "MUTATION FAILED";
-    this.extensions.mutation = "mutation";
+    this.extensions.mutation = true;
     this.extensions.type = mutation;
     return new GraphQLError("Mutation Failure", {
       extensions: this.extensions,
