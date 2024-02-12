@@ -3,15 +3,19 @@ const { DevLoggingTools } = require("./dev");
 const dev = new DevLoggingTools(false);
 
 class GraphQLErrorData {
-  constructor() {
+  constructor(option) {
+    let query = false;
+    let mutation = false;
+    option === "query" ? query = true : null;
+    option === "mutation" ? mutation  = true : null; 
     this.extensions = {
       code: null,
       reason: null,
       message: null,
       status: null,
       user: null,
-      query: null,
-      mutation: null,
+      query: query,
+      mutation: mutation,
       type: null,
     };
   }
@@ -98,6 +102,7 @@ class EmailError extends MutationError {
     super(mutation, obj);
     switch (err.type) {
       case "regexp":
+        this.extensions.status = 400;
         this.extensions.reason = "email regexp";
         this.extensions.code = "Email Validation";
         this.extensions.message = "MongoDB Email Validation Error: email must be a valid email address";
@@ -115,6 +120,7 @@ class PasswordError extends MutationError {
     super(mutation, obj);
     switch (err.type) {
       case "minlength":
+        this.extensions.status = 400;
         this.extensions.reason = "minlength";
         this.extensions.code = "Password Length";
         this.extensions.message = "MongoDB Password Validation Error: password must be at least 8 characters long";
@@ -123,6 +129,7 @@ class PasswordError extends MutationError {
         });
         break;
       case "maxlength":
+        this.extensions.status = 400;
         this.extensions.reason = "maxlength";
         this.extensions.code = "Password Length";
         this.extensions.message = "MongoDB Password Validation Error: password has exceeded character limit";
