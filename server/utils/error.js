@@ -51,6 +51,7 @@ class AuthenticationError extends GraphQLErrorData {
     this.extensions = obj.extensions;
     this.extensions.code = "UNAUTHENTICATED";
     this.extensions.type = option;
+    this.extensions.status = 401;
     return new GraphQLError("Authentication Failure", {
       extensions: this.extensions,
     });
