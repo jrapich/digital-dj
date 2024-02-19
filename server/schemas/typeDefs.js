@@ -45,9 +45,8 @@ const typeDefs = `
     }
 
     input AddSession {
-        userID: ID!
-        isPublic: Boolean!
-        sessionName: String!
+        isPublic: Boolean
+        sessionName: String
         passcode: String
     }
 
@@ -63,7 +62,7 @@ const typeDefs = `
         addUser(username: String!, email: String!, password: String!): Auth
         deleteUser(email: String!, password: String!): Auth
         login(email: String!, password: String!): Auth
-        addSession(newSession: AddSession!): Session
+        addSession(newSession: AddSession): Session
         deleteSession(SessionID: ID!): MutationResult
         addTrack(trackData: AddTrack!, SessionID: ID!): MutationResult
         deleteTrack(trackID: ID!, SessionID: ID!): MutationResult

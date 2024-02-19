@@ -193,46 +193,59 @@ const resolvers = {
       };
     },
     login: async (parent, { email, password }) => {
-      const user = await User.findOne({ email }).select({
-        email: 0,
-        password: 0,
-      });
+      mutation.username = email;
+      mutation.setReason = "login";
+      const user = await User.findOne({ email });
 
       if (!user) {
-        auth.setReason = "email";
-        auth.errorMessage = "no account with that email found";
-        throw auth.AuthenticationError;
+        mutation.setReason = "email";
+        mutation.errorMessage = "no account with that email found";
+        throw new MutationError("login", mutation); 
       }
-
+      
       const checkPW = await user.isCorrectPassword(password);
 
       if (!checkPW) {
-        auth.setReason = "password";
-        auth.errorMessage = "incorrect password";
-        throw AuthenticationError;
+        mutation.setReason = "password";
+        mutation.errorMessage = "incorrect password";
+        throw new AuthenticationError("login", mutation);
       }
 
-      const token = signToken(user);
+      user.password = null;
+      const token = auth.signToken(user);
       return { token, user };
     },
     addSession: async (
       parent,
-      { ownerID, isPublic, sessionName, passcode },
+      {isPublic, sessionName, passcode},
       context
     ) => {
+      mutation.username = context.user;
+      mutation.setReason = "addSession";
+      let session;
+
       if (!context.user) {
-        auth.setReason = "username";
-        auth.errorMessage = "no user is currently logged in";
-        throw auth.AuthenticationError;
+        mutation.setReason = "username";
+        mutation.errorMessage = "no user is currently logged in";
+        throw new AuthenticationError("addSession", mutation);
       }
 
-      const session = await Session.create({
-        owner: context.user,
-        ownerID: ownerID,
-        isPublic: isPublic,
-        sessionName: sessionName,
-        passcode: passcode,
-      }).select({ passcode: 0 });
+      if (passcode) {
+        session = await Session.create({
+          owner: context.user.username,
+          ownerID: context.user._id,
+          isPublic: isPublic,
+          sessionName: sessionName,
+          passcode: passcode,
+        });
+      } else {
+        session = await Session.create({
+          owner: context.user.username,
+          ownerID: context.user._id,
+          isPublic: isPublic,
+          sessionName: sessionName,
+        });
+      }
 
       dev.table(session);
 
